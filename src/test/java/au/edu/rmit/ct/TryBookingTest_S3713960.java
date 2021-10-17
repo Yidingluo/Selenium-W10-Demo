@@ -21,6 +21,8 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.lang.model.element.Element;
+
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 
@@ -93,8 +95,74 @@ class TryBookingTest_S3713960 {
         assertEquals("2021 Nambung Country Music Muster", allFeatureEvents.get(3).getText());
         assertEquals("30th October 2021 Welding for Art", allFeatureEvents.get(4).getText());
         assertEquals("Joondalup Resort Murder Mystery Night", allFeatureEvents.get(5).getText());
+        allFeatureEvents.clear();
     }
 
 
-    
+    @Test
+    @DisplayName("show all events near you and when any such event has '(Cancelled)' in its title, then this test case should fail")
+    void checkNearYouTitle(){
+        String tryBookingURL = "https://www.trybooking.com/book/search";
+        myDriver.get(tryBookingURL);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        WebElement eventsNearbySection = myDriver.findElement(By.id("EventsNearbySection"));
+        List <WebElement> initSearchResult = eventsNearbySection.findElements(By.className("init-search-result"));
+        for (WebElement nearBy : initSearchResult){ 
+           System.out.println(nearBy.findElement(By.tagName("h2")).getText());
+           String cancelled = "CANCELLED";
+           //-1 = false
+           assertEquals(-1, nearBy.findElement(By.tagName("h2")).getText().indexOf(cancelled));
+        }
+    }
+
+
+    @Test
+    @DisplayName("book to one of the Monday sessions, completing data collection questions asked, using student email.")
+    void bookMonday() throws InterruptedException{
+        String bookingMondayURL = " https://www.trybooking.com/BUOMO";
+        myDriver.get(bookingMondayURL);
+            Thread.sleep(3000);
+        WebElement table = myDriver.findElement(By.id("sessions-table"));
+        System.out.println(table.getText());
+        List<WebElement> slt = table.findElements(By.xpath("//button[contains(text(),' Select')]"));
+        slt.get(1).click();
+
+        Thread.sleep(7000);
+        WebElement sectionTickets = myDriver.findElement(By.id("bookingTicketsForm"));
+        sectionTickets.findElement(By.name("quantity0")).sendKeys("1");
+        Thread.sleep(5000);
+        myDriver.findElement(By.id("Next_addToCartBtn")).click();
+        Thread.sleep(5000);
+        List <WebElement> birthday = myDriver.findElements(By.tagName("select"));
+        System.out.println(birthday.size());
+        WebElement months = birthday.get(0);
+        months.findElement(By.xpath("option[12]")).click();
+        // Thread.sleep(1000);
+        WebElement year = birthday.get(2); 
+        year.findElement(By.xpath("option[36]")).click();
+        // Thread.sleep(1000);
+        WebElement days = birthday.get(1);
+        days.findElement(By.xpath("option[20]")).click();
+        // Thread.sleep(1000);
+        WebElement workingVideo = birthday.get(3);
+        workingVideo.findElement(By.xpath("option[1]")).click();
+        // Thread.sleep(1000);
+        myDriver.findElement(By.id("ticketHolderDetails_Next")).click();
+        Thread.sleep(5000);
+        myDriver.findElement(By.id("txtFirstName")).sendKeys("Yiding");
+        // Thread.sleep(1000);
+        myDriver.findElement(By.id("txtLastName")).sendKeys("Luo");
+        // Thread.sleep(1000);
+        myDriver.findElement(By.xpath("//select[@id='drpCountry']/option[51]")).click();
+        // Thread.sleep(1000);
+        myDriver.findElement(By.id("txtEmailAddress")).sendKeys("s3713960@student.rmit.edu.au");
+        // Thread.sleep(1000);
+        myDriver.findElement(By.id("txtConfirmEmailAddress")).sendKeys("s3713960@student.rmit.edu.au");
+        // Thread.sleep(1000);
+        myDriver.findElement(By.xpath("//button[contains(text(),'Purchase')]")).click();
+    }
 }
